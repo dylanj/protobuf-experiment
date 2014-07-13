@@ -4,6 +4,7 @@
 #include "client.h"
 #include "protobufs.h"
 #include "server_conn.h"
+
 #include "SDL2/SDL_net.h"
 
 // server functions

@@ -6,19 +6,11 @@
 #include "protobufs.h"
 #include "client.h"
 #include "net.h"
+#include "game.h"
 
 client_t **g_clients; //[MAX_CLIENTS];
 int g_client_ids = 0;
 int g_client_count = 0;
-
-void g_init() {
-	if (SDLNet_Init() < 0) {
-		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
-
-	g_clients = malloc(MAX_CLIENTS * sizeof(client_t *));
-}
 
 int main(int argc, char **argv) {
 	UDPsocket sd;
