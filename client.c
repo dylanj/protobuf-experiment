@@ -3,13 +3,13 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_net.h"
-#include "../protobufs/handshake.pb-c.h"
-#include "../protobufs/input.pb-c.h"
-#include "../protobufs/wrapper.pb-c.h"
+#include "protobufs/handshake.pb-c.h"
+#include "protobufs/input.pb-c.h"
+#include "protobufs/wrapper.pb-c.h"
 
 IPaddress server_ip;
 
-int net_send_message(int type, UDPsocket s, void *data) {
+void net_send_message(int type, UDPsocket s, void *data) {
 	WrapperMessage msg = WRAPPER_MESSAGE__INIT;
 	UDPpacket *p;
 
@@ -38,14 +38,11 @@ int net_send_message(int type, UDPsocket s, void *data) {
 	}
 
 	SDLNet_FreePacket(p);
-
-	return 0;
 }
 
-int *net_msg_handshake(UDPsocket sd, char *name, char *country) {
+void net_msg_handshake(UDPsocket sd, char *name, char *country) {
 	HandshakeMessage msg = HANDSHAKE_MESSAGE__INIT;
 	void *buffer = malloc(512);
-	int len;
 
 	msg.name = name;
 	msg.country = country;
@@ -55,13 +52,11 @@ int *net_msg_handshake(UDPsocket sd, char *name, char *country) {
 	printf("sent a handshake\n");
 
 	free(buffer);
-	return 0;
 }
 
-int net_msg_input(UDPsocket sd, int key, int press) {
+void net_msg_input(UDPsocket sd, int key, int press) {
 	InputMessage msg = INPUT_MESSAGE__INIT;
 	void *buffer = malloc(512);
-	int len;
 
 	msg.key = key;
 	msg.press = press;
@@ -69,15 +64,15 @@ int net_msg_input(UDPsocket sd, int key, int press) {
 	net_send_message(WRAPPER_MESSAGE__TYPE__INPUT, sd, &msg);
 
 	free(buffer);
-	return 0;
 }
 
-int g_init() {
+void g_init() {
 	if ( SDLNet_Init() < 0 ) {
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
 }
+
 int main(int argc, char **argv) {
 	char *server_address = "127.0.0.1";
 	int server_port = 1234;

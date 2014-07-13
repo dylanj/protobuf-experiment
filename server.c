@@ -3,25 +3,25 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_net.h"
-#include "../protobufs/handshake.pb-c.h"
-#include "../protobufs/input.pb-c.h"
-#include "../protobufs/wrapper.pb-c.h"
+#include "protobufs/handshake.pb-c.h"
+#include "protobufs/input.pb-c.h"
+#include "protobufs/wrapper.pb-c.h"
 
-int g_init() {
+void g_init() {
 	if ( SDLNet_Init() < 0 ) {
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
 }
 
-int handle_handshake(HandshakeMessage* msg) {
+void handle_handshake(HandshakeMessage* msg) {
 	printf("handshake: \n");
 
 	printf("name: %s\n", msg->name);
 	printf("country: %s\n", msg->country);
 }
 
-int handle_input(InputMessage* msg) {
+void handle_input(InputMessage* msg) {
 	printf("input: \n");
 
 	printf("key: %d\n", msg->key);
