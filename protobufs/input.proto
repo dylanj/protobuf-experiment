@@ -1,0 +1,4 @@
+message InputMessage {
+  required int32 key=1;
+  required bool press=2;
+}

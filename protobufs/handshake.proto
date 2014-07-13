@@ -1,0 +1,4 @@
+message HandshakeMessage {
+  required string name=1;
+  optional string country=2;
+}

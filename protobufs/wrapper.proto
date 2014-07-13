@@ -1,0 +1,12 @@
+import "handshake.proto";
+import "input.proto";
+
+message WrapperMessage {
+  enum Type { HANDSHAKE = 1; INPUT = 2; }
+
+  required Type type = 1;
+
+  optional HandshakeMessage handshake_message = 2;
+  optional InputMessage input_message = 3;
+}
+
