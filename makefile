@@ -1,9 +1,10 @@
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-g -c -Wall -std=c11
 LDFLAGS=`sdl-config --libs` -lSDL2_net -lprotobuf-c
 PROTOBUF= protobufs/wrapper.pb-c.c protobufs/input.pb-c.c protobufs/handshake.pb-c.c
-SERVER_SOURCES=$(PROTOBUF) server.c
-CLIENT_SOURCES=$(PROTOBUF) client.c
+SHARED_SOURCES=$(PROTOBUF) net.c client_funcs.c
+SERVER_SOURCES=$(SHARED_SOURCES) server.c
+CLIENT_SOURCES=$(SHARED_SOURCES) client.c
 SERVER_OBJECTS=$(SERVER_SOURCES:%.c=%.o)
 CLIENT_OBJECTS=$(CLIENT_SOURCES:%.c=%.o)
 SERVER_EXECUTABLE=server

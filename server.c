@@ -3,33 +3,24 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_net.h"
-#include "protobufs/handshake.pb-c.h"
-#include "protobufs/input.pb-c.h"
-#include "protobufs/wrapper.pb-c.h"
+#include "protobufs.h"
+#include "client.h"
+#include "net.h"
+
+client_t **g_clients; //[MAX_CLIENTS];
+int g_client_ids = 0;
+int g_client_count = 0;
 
 void g_init() {
-	if ( SDLNet_Init() < 0 ) {
+	if (SDLNet_Init() < 0) {
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-}
 
-void handle_handshake(HandshakeMessage* msg) {
-	printf("handshake: \n");
-
-	printf("name: %s\n", msg->name);
-	printf("country: %s\n", msg->country);
-}
-
-void handle_input(InputMessage* msg) {
-	printf("input: \n");
-
-	printf("key: %d\n", msg->key);
-	printf("press: %d\n", msg->press);
+	g_clients = malloc(MAX_CLIENTS * sizeof(client_t *));
 }
 
 int main(int argc, char **argv) {
-	WrapperMessage *msg;
 	UDPsocket sd;
 	UDPpacket *p;
 	int quit;
@@ -49,6 +40,7 @@ int main(int argc, char **argv) {
 	quit = 0;
 	while (!quit) {
 		if (SDLNet_UDP_Recv(sd, p)) {
+			/* int ticks = SDL_GetTicks(); */
 			printf("UDP Packet incoming\n");
 			printf("\tChan:			%d\n", p->channel);
 			printf("\tLen:			%d\n", p->len);
@@ -56,21 +48,9 @@ int main(int argc, char **argv) {
 			printf("\tStatus:		%d\n", p->status);
 			printf("\tAddress:	%x %x\n", p->address.host, p->address.port);
 
-			msg = wrapper_message__unpack(NULL, p->len, p->data);
+			printf("socket %p\n", sd);
 
-			if ( msg == NULL ) {
-				fprintf(stderr, "Error decoding message\n");
-				exit(EXIT_FAILURE);
-			}
-
-			switch(msg->type) {
-				case WRAPPER_MESSAGE__TYPE__HANDSHAKE:
-					handle_handshake(msg->handshake_message); break;
-				case WRAPPER_MESSAGE__TYPE__INPUT:
-					handle_input(msg->input_message); break;
-			}
-
-			wrapper_message__free_unpacked(msg, NULL);
+			net_handle_message(sd, p);
 		}
 	}
 
