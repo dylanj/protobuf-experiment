@@ -5,7 +5,6 @@
 #include "client.h"
 #include "game.h"
 #include "net.h"
-#include "connection.h"
 #include "window.h"
 
 #include <SDL2/SDL_opengl.h>
@@ -28,10 +27,10 @@ void g_client_init() {
 	printf("Loaded SDL.");
 }
 
-int do_input( connection_t *s ) {
+int do_input( ENetPeer *peer ) {
 	int quit = 0;
 	int keypress = -1;
-	int action;
+	int action = -1;
 	while( SDL_PollEvent( &e ) != 0 ) {
 		keypress = -1;
 		if( e.type == SDL_QUIT ) {
@@ -47,7 +46,8 @@ int do_input( connection_t *s ) {
 		if ( keypress > -1 ) {
 			switch(e.key.keysym.sym) {
 				case SDLK_w:
-					action = INPUT_MESSAGE__ACTION__FORWARD;					 break;
+					action = INPUT_MESSAGE__ACTION__FORWARD;
+					break;
 				case SDLK_a:
 					action = INPUT_MESSAGE__ACTION__STRAFE_LEFT;
 					break;
@@ -62,7 +62,9 @@ int do_input( connection_t *s ) {
 					break;
 			}
 
-			net_send_input(s, action, keypress);
+			if ( action >= 0 ) {
+			  net_send_input(peer, action, keypress);
+			}
 		}
 	}
 
@@ -70,22 +72,41 @@ int do_input( connection_t *s ) {
 }
 
 int main(int argc, char **argv) {
-	UDPpacket *p;
-	if (!(p = SDLNet_AllocPacket(1025))) {
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
+	ENetAddress address;
+	ENetEvent event;
+	ENetPeer *peer;
+	ENetHost *client;
+
 	g_init();
 	g_client_init();
 
-	connection_t *c = connection_create_from_addr("127.0.0.1", 1234);
+	enet_address_set_host(&address, "127.0.0.1");
+	address.port = 1234;
 
-	if ( c == NULL ) {
+	if ( &address == NULL ) {
 		fprintf(stderr, "Couldn't establish connection\n");
 		exit(EXIT_FAILURE);
 	}
 
-	net_send_handshake(c, argv[1], "Canada");
+	client = enet_host_create(
+		NULL /* create a client host */,
+    1 /* only allow 1 outgoing connection */,
+    2 /* allow up 2 channels to be used, 0 and 1 */,
+		57600 / 8 /* 56K modem with 56 Kbps downstream bandwidth */,
+		14400 / 8 /* 56K modem with 14 Kbps upstream bandwidth */
+	);
+
+	if (client == NULL) {
+    fprintf (stderr, "An error occurred while trying to create an ENet client host.\n");
+    exit (EXIT_FAILURE);
+	}
+
+	peer = enet_host_connect(client, &address, 2, 0);
+
+	if (peer == NULL) {
+		fprintf (stderr, "No available peers for initiating an ENet connection.\n");
+		exit (EXIT_FAILURE);
+	}
 
 	window_t *w = window_create();
 
@@ -94,22 +115,40 @@ int main(int argc, char **argv) {
 	}
 
 	while(1) {
-		if ( do_input(c) ) {
+		if ( do_input(peer) ) {
 			printf("closing\n");
 			break;
 		}
 
-		if (SDLNet_UDP_Recv(c->socket, p)) {
-			net_client_handle_message(c, p);
+		if (enet_host_service(client, &event, 10) ){
+			switch (event.type) {
+				case ENET_EVENT_TYPE_CONNECT:
+					printf ("A new client connected from %x:%u.\n",
+						event.peer->address.host,
+						event.peer->address.port
+					);
+
+					event.peer -> data = "Client information";
+					net_send_handshake(event.peer, argv[1], "Canada");
+					break;
+
+				case ENET_EVENT_TYPE_RECEIVE:
+					net_client_handle_message(event);
+
+					enet_packet_destroy(event.packet);
+					break;
+
+				case ENET_EVENT_TYPE_DISCONNECT:
+					printf ("%s disconnected.\n", event.peer -> data);
+					event.peer -> data = NULL;
+					break;
+			}
 		}
-
-
 
 		//render
 		glClear ( GL_COLOR_BUFFER_BIT );
 		SDL_GL_SwapWindow(w->window);
 	}
-	SDLNet_FreePacket(p);
 
 cleanup:
 	window_close(w);

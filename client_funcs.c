@@ -2,17 +2,17 @@
 
 extern int g_client_ids;
 
-client_t *client_find(UDPsocket sd) {
+client_t *client_find(ENetPeer *peer) {
 
-	if ( sd == NULL ) {
-		printf("passed NULL socket to client_find\n");
+	if ( peer == NULL ) {
+		printf("Passed NULL peer to client_find()\n");
 		return NULL;
 	}
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (g_clients[i] == NULL ) {
 			continue;
 		}
-		if (g_clients[i]->connection->socket == sd) {
+		if (g_clients[i]->peer == peer) {
 			return g_clients[i];
 		}
 	}
@@ -23,14 +23,11 @@ client_t *client_find(UDPsocket sd) {
 void client_print_info(client_t *c) {
 	printf("id: %d\n", c->id);
 	printf("name: %s\n", c->name);
-	printf("ip %x:%x\n", c->connection->ip.host, c->connection->ip.port);
-	printf("socket %p\n", c->connection->socket);
 }
 
 client_t *client_create() {
 	client_t *c = malloc(sizeof(client_t));
 	c->id = g_client_ids++;
-	c->connection = malloc(sizeof(connection_t));
 
 	for( int i = 0; i < MAX_CLIENTS; i++ ) {
 		if ( g_clients[i] != NULL ) {

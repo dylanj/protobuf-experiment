@@ -14,45 +14,57 @@ int g_client_count = 0;
 int g_last_ping = 0;
 
 int main(int argc, char **argv) {
-	UDPsocket sd;
-	UDPpacket *p;
-	int quit;
+	ENetEvent event;
+	ENetAddress address;
+	ENetHost * server;
+	int quit = 0;
 
 	g_init();
+	address.host = ENET_HOST_ANY;
+	address.port = 1234;
+	server = enet_host_create(
+		&address,
+		32, // 32 connections
+		2, // channels?
+		0, // inc bw?
+		0  // out bw
+  );
 
-	if (!(sd = SDLNet_UDP_Open(1234))) {
-		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+	if (server == NULL) {
+		fprintf(stderr, "An error occurred while trying to create an ENet server host.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if (!(p = SDLNet_AllocPacket(512))) {
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
-
-	quit = 0;
 	while (!quit) {
-		net_send_pings();
 
-		if (SDLNet_UDP_Recv(sd, p)) {
+		if (enet_host_service(server, &event, 10)) {
 			int ticks = SDL_GetTicks();
+			switch (event.type) {
+				case ENET_EVENT_TYPE_CONNECT:
+					printf ("A new client connected from %x:%u.\n", 
+						event.peer->address.host,
+						event.peer->address.port
+					);
 
-			printf("UDP Packet incoming\n");
-			printf("\tChan:			%d\n", p->channel);
-			printf("\tLen:			%d\n", p->len);
-			printf("\tMaxlen:		%d\n", p->maxlen);
-			printf("\tStatus:		%d\n", p->status);
-			printf("\tAddress:	%x %x\n", p->address.host, p->address.port);
-			printf("\tSocket:	  %p\n", sd);
-			printf("\tTicks:   %d\n", ticks);
+					event.peer->data = "Client information";
+					break;
 
-			printf("socket %p\n", sd);
+				case ENET_EVENT_TYPE_RECEIVE:
+					net_handle_message(event);
 
-			net_handle_message(sd, p);
+					enet_packet_destroy (event.packet);
+					break;
+
+				case ENET_EVENT_TYPE_DISCONNECT:
+					printf("%s disconnected.\n", event.peer->data);
+
+					event.peer->data = NULL;
+					break;
+			}
 		}
 	}
 
-	SDLNet_FreePacket(p);
-	SDLNet_Quit();
+	enet_host_destroy(server);
+
 	return EXIT_SUCCESS;
 }
