@@ -13,13 +13,20 @@ typedef struct _InputMessage InputMessage;
 
 /* --- enums --- */
 
+typedef enum _InputMessage__Action {
+  INPUT_MESSAGE__ACTION__FORWARD = 1,
+  INPUT_MESSAGE__ACTION__STRAFE_LEFT = 2,
+  INPUT_MESSAGE__ACTION__STRAFE_RIGHT = 3,
+  INPUT_MESSAGE__ACTION__BACK = 4,
+  INPUT_MESSAGE__ACTION__JUMP = 5
+} InputMessage__Action;
 
 /* --- messages --- */
 
 struct  _InputMessage
 {
   ProtobufCMessage base;
-  int32_t key;
+  InputMessage__Action action;
   protobuf_c_boolean press;
 };
 #define INPUT_MESSAGE__INIT \
@@ -58,6 +65,7 @@ typedef void (*InputMessage_Closure)
 /* --- descriptors --- */
 
 extern const ProtobufCMessageDescriptor input_message__descriptor;
+extern const ProtobufCEnumDescriptor    input_message__action__descriptor;
 
 PROTOBUF_C_END_DECLS
 

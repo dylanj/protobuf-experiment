@@ -11,6 +11,7 @@
 client_t **g_clients; //[MAX_CLIENTS];
 int g_client_ids = 0;
 int g_client_count = 0;
+int g_last_ping = 0;
 
 int main(int argc, char **argv) {
 	UDPsocket sd;
@@ -31,8 +32,11 @@ int main(int argc, char **argv) {
 
 	quit = 0;
 	while (!quit) {
+		net_send_pings();
+
 		if (SDLNet_UDP_Recv(sd, p)) {
 			int ticks = SDL_GetTicks();
+
 			printf("UDP Packet incoming\n");
 			printf("\tChan:			%d\n", p->channel);
 			printf("\tLen:			%d\n", p->len);
@@ -43,8 +47,6 @@ int main(int argc, char **argv) {
 			printf("\tTicks:   %d\n", ticks);
 
 			printf("socket %p\n", sd);
-
-			/* connection_t = { ip, sd }; */
 
 			net_handle_message(sd, p);
 		}

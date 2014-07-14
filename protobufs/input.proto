@@ -1,4 +1,12 @@
 message InputMessage {
-  required int32 key=1;
+  enum Action {
+    FORWARD = 1;
+    STRAFE_LEFT = 2;
+    STRAFE_RIGHT = 3;
+    BACK = 4;
+    JUMP = 5;
+  }
+
+  required Action action=1;
   required bool press=2;
 }

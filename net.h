@@ -7,7 +7,6 @@
 
 #include "SDL2/SDL_net.h"
 
-
 void _net_send_message(int type, connection_t *c, void *data);
 
 // server functions
@@ -18,6 +17,7 @@ void _net_handle_input(client_t *c, InputMessage *msg);
 void _net_handle_pong(client_t *c, PongMessage *msg);
 
 void _net_send_ping(connection_t *c, int ping);
+void net_send_pings();
 
 // client functions
 void net_send_handshake(connection_t *, char *name, char *country);

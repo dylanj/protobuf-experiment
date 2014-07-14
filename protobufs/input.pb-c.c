@@ -49,16 +49,50 @@ void   input_message__free_unpacked
   PROTOBUF_C_ASSERT (message->base.descriptor == &input_message__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+const ProtobufCEnumValue input_message__action__enum_values_by_number[5] =
+{
+  { "FORWARD", "INPUT_MESSAGE__ACTION__FORWARD", 1 },
+  { "STRAFE_LEFT", "INPUT_MESSAGE__ACTION__STRAFE_LEFT", 2 },
+  { "STRAFE_RIGHT", "INPUT_MESSAGE__ACTION__STRAFE_RIGHT", 3 },
+  { "BACK", "INPUT_MESSAGE__ACTION__BACK", 4 },
+  { "JUMP", "INPUT_MESSAGE__ACTION__JUMP", 5 },
+};
+static const ProtobufCIntRange input_message__action__value_ranges[] = {
+{1, 0},{0, 5}
+};
+const ProtobufCEnumValueIndex input_message__action__enum_values_by_name[5] =
+{
+  { "BACK", 3 },
+  { "FORWARD", 0 },
+  { "JUMP", 4 },
+  { "STRAFE_LEFT", 1 },
+  { "STRAFE_RIGHT", 2 },
+};
+const ProtobufCEnumDescriptor input_message__action__descriptor =
+{
+  PROTOBUF_C_ENUM_DESCRIPTOR_MAGIC,
+  "InputMessage.Action",
+  "Action",
+  "InputMessage__Action",
+  "",
+  5,
+  input_message__action__enum_values_by_number,
+  5,
+  input_message__action__enum_values_by_name,
+  1,
+  input_message__action__value_ranges,
+  NULL,NULL,NULL,NULL   /* reserved[1234] */
+};
 static const ProtobufCFieldDescriptor input_message__field_descriptors[2] =
 {
   {
-    "key",
+    "action",
     1,
     PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_INT32,
+    PROTOBUF_C_TYPE_ENUM,
     0,   /* quantifier_offset */
-    PROTOBUF_C_OFFSETOF(InputMessage, key),
-    NULL,
+    PROTOBUF_C_OFFSETOF(InputMessage, action),
+    &input_message__action__descriptor,
     NULL,
     0,            /* packed */
     0,NULL,NULL    /* reserved1,reserved2, etc */
@@ -77,7 +111,7 @@ static const ProtobufCFieldDescriptor input_message__field_descriptors[2] =
   },
 };
 static const unsigned input_message__field_indices_by_name[] = {
-  0,   /* field[0] = key */
+  0,   /* field[0] = action */
   1,   /* field[1] = press */
 };
 static const ProtobufCIntRange input_message__number_ranges[1 + 1] =

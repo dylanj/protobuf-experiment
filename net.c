@@ -1,6 +1,8 @@
 #include "net.h"
 #include "protobufs.h"
 
+extern int g_last_ping;
+
 void _net_handle_handshake(UDPsocket sd, UDPpacket *p, HandshakeMessage* msg) {
 	client_t *c = client_create();
 	c->name = malloc(strlen(msg->name));
@@ -19,14 +21,48 @@ void _net_handle_handshake(UDPsocket sd, UDPpacket *p, HandshakeMessage* msg) {
 	client_print_info(c);
 }
 
+void net_send_pings() {
+	int ticks = SDL_GetTicks();
+	if (g_last_ping + 5000 < ticks) {
+		printf("sending pings\n");
+		for( int i = 0; i < MAX_CLIENTS; i++ ) {
+			if (g_clients[i] == NULL) {
+				continue;
+			}
+			_net_send_ping(g_clients[i]->connection, ticks);
+		}
+
+		g_last_ping = ticks;
+	}
+}
+
+void _net_handle_pong(client_t *c, PongMessage* msg) {
+	printf("PONG: %d\n", msg->pong);
+
+	c->connection->missed_pings--;
+	c->connection->last_pong = msg->pong;
+}
+
 void _net_handle_input(client_t *c, InputMessage* msg) {
-	printf("input: \n");
+	printf("%s is moving! ", c->name);
 
-	client_print_info(c);
-	printf("key: %d\n", msg->key);
-	printf("press: %d\n", msg->press);
-
-	printf("%s is moving!\n", c->name);
+	switch(msg->action) {
+		case INPUT_MESSAGE__ACTION__FORWARD:
+			printf("forward\n");
+			break;
+		case INPUT_MESSAGE__ACTION__STRAFE_LEFT:
+			printf("left\n");
+			break;
+		case INPUT_MESSAGE__ACTION__STRAFE_RIGHT:
+			printf("right\n");
+			break;
+		case INPUT_MESSAGE__ACTION__BACK:
+			printf("backpedal\n");
+			break;
+		case INPUT_MESSAGE__ACTION__JUMP:
+			printf("jumping\n");
+			break;
+	}
 }
 
 void net_handle_message(UDPsocket sd, UDPpacket *p) {
@@ -49,16 +85,15 @@ void net_handle_message(UDPsocket sd, UDPpacket *p) {
 		switch(msg->type) {
 			case WRAPPER_MESSAGE__TYPE__INPUT:
 				_net_handle_input(c, msg->input_message); break;
+			case WRAPPER_MESSAGE__TYPE__PONG:
+				_net_handle_pong(c, msg->pong_message); break;
 		}
-
-		_net_send_ping(c->connection, SDL_GetTicks());
 	}
 
 	wrapper_message__free_unpacked(msg, NULL);
 }
 
 void net_client_handle_message(connection_t *c, UDPpacket *p) {
-	printf("client received message\n");
 	WrapperMessage *msg;
 
 	msg = wrapper_message__unpack(NULL, p->len, p->data);
@@ -68,11 +103,6 @@ void net_client_handle_message(connection_t *c, UDPpacket *p) {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("client handle message: \n");
-	printf("con: %p\n", c);
-	printf("msg: %p\n", msg);
-	printf("msg->ping_message: %p\n", msg->ping_message);
-	printf("msg->pong_message: %p\n", msg->pong_message);
 	switch(msg->type) {
 		case WRAPPER_MESSAGE__TYPE__PING:
 			_net_client_handle_ping(c, msg->ping_message); break;
@@ -137,6 +167,10 @@ void _net_send_ping(connection_t *c, int ping) {
 	PingMessage msg = PING_MESSAGE__INIT;
 
 	msg.ping = ping;
+	c->missed_pings++;
+	if ( c->missed_pings >= 4 ) {
+		printf("client timedout\n");
+	}
 
 	_net_send_message(WRAPPER_MESSAGE__TYPE__PING, c, &msg);
 }
@@ -160,10 +194,10 @@ void net_send_handshake(connection_t *c, char *name, char *country) {
 // connection_t *s: server connection struct
 // int key: keysym pressed
 // int press: 1 press, 0 release
-void net_send_input(connection_t *c, int key, int press) {
+void net_send_input(connection_t *c, int action, int press) {
 	InputMessage msg = INPUT_MESSAGE__INIT;
 
-	msg.key = key;
+	msg.action = action;
 	msg.press = press;
 
 	_net_send_message(WRAPPER_MESSAGE__TYPE__INPUT, c, &msg);
