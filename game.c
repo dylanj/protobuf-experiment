@@ -12,3 +12,8 @@ void g_init() {
 	g_clients = malloc(MAX_CLIENTS * sizeof(client_t *));
 }
 
+void g_quit() {
+	SDL_Quit();
+	SDLNet_Quit();
+}
+

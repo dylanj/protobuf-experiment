@@ -1,12 +1,20 @@
 import "handshake.proto";
 import "input.proto";
+import "ping.proto";
 
 message WrapperMessage {
-  enum Type { HANDSHAKE = 1; INPUT = 2; }
+  enum Type {
+    HANDSHAKE = 1;
+    INPUT     = 2;
+    PING      = 3;
+    PONG      = 4;
+  }
 
   required Type type = 1;
 
   optional HandshakeMessage handshake_message = 2;
   optional InputMessage input_message = 3;
+  optional PingMessage ping_message = 4;
+  optional PongMessage pong_message = 5;
 }
 

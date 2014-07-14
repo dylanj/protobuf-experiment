@@ -9,6 +9,7 @@ PROTOBUF_C_BEGIN_DECLS
 
 #include "handshake.pb-c.h"
 #include "input.pb-c.h"
+#include "ping.pb-c.h"
 
 typedef struct _WrapperMessage WrapperMessage;
 
@@ -17,7 +18,9 @@ typedef struct _WrapperMessage WrapperMessage;
 
 typedef enum _WrapperMessage__Type {
   WRAPPER_MESSAGE__TYPE__HANDSHAKE = 1,
-  WRAPPER_MESSAGE__TYPE__INPUT = 2
+  WRAPPER_MESSAGE__TYPE__INPUT = 2,
+  WRAPPER_MESSAGE__TYPE__PING = 3,
+  WRAPPER_MESSAGE__TYPE__PONG = 4
 } WrapperMessage__Type;
 
 /* --- messages --- */
@@ -28,10 +31,12 @@ struct  _WrapperMessage
   WrapperMessage__Type type;
   HandshakeMessage *handshake_message;
   InputMessage *input_message;
+  PingMessage *ping_message;
+  PongMessage *pong_message;
 };
 #define WRAPPER_MESSAGE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&wrapper_message__descriptor) \
-    , 0, NULL, NULL }
+    , 0, NULL, NULL, NULL, NULL }
 
 
 /* WrapperMessage methods */

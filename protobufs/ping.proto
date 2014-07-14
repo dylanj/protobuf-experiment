@@ -1,0 +1,6 @@
+message PingMessage {
+  required int32 ping=1;
+}
+message PongMessage {
+  required int32 pong=1;
+}

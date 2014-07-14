@@ -32,15 +32,19 @@ int main(int argc, char **argv) {
 	quit = 0;
 	while (!quit) {
 		if (SDLNet_UDP_Recv(sd, p)) {
-			/* int ticks = SDL_GetTicks(); */
+			int ticks = SDL_GetTicks();
 			printf("UDP Packet incoming\n");
 			printf("\tChan:			%d\n", p->channel);
 			printf("\tLen:			%d\n", p->len);
 			printf("\tMaxlen:		%d\n", p->maxlen);
 			printf("\tStatus:		%d\n", p->status);
 			printf("\tAddress:	%x %x\n", p->address.host, p->address.port);
+			printf("\tSocket:	  %p\n", sd);
+			printf("\tTicks:   %d\n", ticks);
 
 			printf("socket %p\n", sd);
+
+			/* connection_t = { ip, sd }; */
 
 			net_handle_message(sd, p);
 		}

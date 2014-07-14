@@ -1,13 +1,13 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include "connection.h"
 #include "SDL2/SDL_net.h"
 
 #define MAX_CLIENTS 32
 
 typedef struct client_s {
-	IPaddress ip;
-	UDPsocket socket;
+	connection_t *connection;
 
 	char *name;
 	char *country;
