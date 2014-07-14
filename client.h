@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <enet/enet.h>
 #include "connection.h"
 #include "SDL2/SDL_net.h"
 

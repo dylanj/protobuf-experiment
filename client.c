@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	net_send_handshake(c, "phishtopher", "Canada");
+	net_send_handshake(c, argv[1], "Canada");
 
 	window_t *w = window_create();
 
@@ -103,6 +103,9 @@ int main(int argc, char **argv) {
 			net_client_handle_message(c, p);
 		}
 
+
+
+		//render
 		glClear ( GL_COLOR_BUFFER_BIT );
 		SDL_GL_SwapWindow(w->window);
 	}

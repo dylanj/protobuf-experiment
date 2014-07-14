@@ -3,6 +3,11 @@
 extern int g_client_ids;
 
 client_t *client_find(UDPsocket sd) {
+
+	if ( sd == NULL ) {
+		printf("passed NULL socket to client_find\n");
+		return NULL;
+	}
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (g_clients[i] == NULL ) {
 			continue;

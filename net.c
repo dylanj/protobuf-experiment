@@ -44,25 +44,7 @@ void _net_handle_pong(client_t *c, PongMessage* msg) {
 }
 
 void _net_handle_input(client_t *c, InputMessage* msg) {
-	printf("%s is moving! ", c->name);
-
-	switch(msg->action) {
-		case INPUT_MESSAGE__ACTION__FORWARD:
-			printf("forward\n");
-			break;
-		case INPUT_MESSAGE__ACTION__STRAFE_LEFT:
-			printf("left\n");
-			break;
-		case INPUT_MESSAGE__ACTION__STRAFE_RIGHT:
-			printf("right\n");
-			break;
-		case INPUT_MESSAGE__ACTION__BACK:
-			printf("backpedal\n");
-			break;
-		case INPUT_MESSAGE__ACTION__JUMP:
-			printf("jumping\n");
-			break;
-	}
+	input_handle_action(c, msg->action, msg->press);
 }
 
 void net_handle_message(UDPsocket sd, UDPpacket *p) {

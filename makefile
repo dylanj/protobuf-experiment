@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-g -c -std=c11
-LDFLAGS=`sdl2-config --libs` -lSDL2_net -lprotobuf-c
+LDFLAGS=`sdl2-config --libs` -lSDL2_net -lprotobuf-c -lenet
 CLIENT_LDFLAGS=$(LDFLAGS) -lGL
 PROTOBUF= protobufs/wrapper.pb-c.c protobufs/input.pb-c.c protobufs/handshake.pb-c.c protobufs/ping.pb-c.c
-SHARED_SOURCES=$(PROTOBUF) net.c client_funcs.c game.c
+SHARED_SOURCES=$(PROTOBUF) net.c client_funcs.c game.c input.c
 SERVER_SOURCES=$(SHARED_SOURCES) server.c
 CLIENT_SOURCES=$(SHARED_SOURCES) connection.c client.c window.c
 SERVER_OBJECTS=$(SERVER_SOURCES:%.c=%.o)
