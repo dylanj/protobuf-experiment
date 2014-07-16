@@ -17,7 +17,6 @@ int g_client_ids = 0;
 int g_client_count = 0;
 int g_last_ping = 0;
 
-void g_client_init();
 void g_client_init() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		printf("Failed to init sdl.\n");
@@ -63,7 +62,7 @@ int do_input( ENetPeer *peer ) {
 			}
 
 			if ( action >= 0 ) {
-			  net_send_input(peer, action, keypress);
+			  _net_client_send_input(peer, action, keypress);
 			}
 		}
 	}
@@ -129,7 +128,7 @@ int main(int argc, char **argv) {
 					);
 
 					event.peer -> data = "Client information";
-					net_send_handshake(event.peer, argv[1], "Canada");
+					_net_client_send_handshake(event.peer, argv[1], "Canada");
 					break;
 
 				case ENET_EVENT_TYPE_RECEIVE:

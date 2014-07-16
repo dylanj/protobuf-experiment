@@ -20,6 +20,18 @@ client_t *client_find(ENetPeer *peer) {
 	return NULL;
 }
 
+client_t *client_find_by_id(int id) {
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (g_clients[i] == NULL ) {
+			continue;
+		}
+		if (g_clients[i]->id == id) {
+			return g_clients[i];
+		}
+	}
+	return NULL;
+}
+
 void client_print_info(client_t *c) {
 	printf("id: %d\n", c->id);
 	printf("name: %s\n", c->name);

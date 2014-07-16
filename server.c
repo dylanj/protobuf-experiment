@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 			int ticks = SDL_GetTicks();
 			switch (event.type) {
 				case ENET_EVENT_TYPE_CONNECT:
-					printf ("A new client connected from %x:%u.\n", 
+					printf ("A new client connected from %x:%u.\n",
 						event.peer->address.host,
 						event.peer->address.port
 					);
@@ -51,14 +51,10 @@ int main(int argc, char **argv) {
 
 				case ENET_EVENT_TYPE_RECEIVE:
 					net_handle_message(event);
-
-					enet_packet_destroy (event.packet);
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
-					printf("%s disconnected.\n", event.peer->data);
-
-					event.peer->data = NULL;
+					net_disconnect(event);
 					break;
 			}
 		}

@@ -1,20 +1,25 @@
 import "handshake.proto";
 import "input.proto";
-import "ping.proto";
+import "lobby.proto";
 
 message WrapperMessage {
   enum Type {
-    HANDSHAKE = 1;
-    INPUT     = 2;
-    PING      = 3;
-    PONG      = 4;
+    HANDSHAKE     = 1;
+    INPUT         = 2;
+    LOBBY_JOIN    = 3;
+    LOBBY_LEAVE   = 4;
+    LOBBY_CHAT    = 5;
+    LOBBY_WHO     = 6;
   }
 
   required Type type = 1;
 
   optional HandshakeMessage handshake_message = 2;
   optional InputMessage input_message = 3;
-  optional PingMessage ping_message = 4;
-  optional PongMessage pong_message = 5;
+
+  optional NET.LobbyJoin lobby_join_message = 4;
+  optional NET.LobbyLeave lobby_leave_message = 5;
+  optional NET.LobbyChat lobby_chat_message = 6;
+  optional NET.LobbyWho lobby_who_message = 7;
 }
 

@@ -1,0 +1,21 @@
+import "client.proto";
+
+package NET;
+
+message LobbyJoin {
+  required int32 id=1;
+}
+
+message LobbyLeave {
+  required int32 id=1;
+  optional string reason=2;
+}
+
+message LobbyChat {
+  required int32 id=1;
+  required string message=2;
+}
+
+message LobbyWho {
+  repeated NET.Client clients = 1;
+}
